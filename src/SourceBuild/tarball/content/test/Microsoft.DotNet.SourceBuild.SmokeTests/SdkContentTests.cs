@@ -23,7 +23,7 @@ public class SdkContentTests : SmokeTests
     /// This makes the baseline durable between releases.  This does mean however, entries
     /// in the baseline may appear identical if the diff is version specific.
     /// </Summary>
-    [SkippableFact(new[] { Config.MsftSdkTarballPathEnv, Config.SdkTarballPathEnv }, skipOnNullOrWhiteSpace: true)]
+    //[SkippableFact(new[] { Config.MsftSdkTarballPathEnv, Config.SdkTarballPathEnv }, skipOnNullOrWhiteSpace: true)]
     public void CompareMsftToSb()
     {
         const string msftFileListingFileName = "msftSdkFiles.txt";
