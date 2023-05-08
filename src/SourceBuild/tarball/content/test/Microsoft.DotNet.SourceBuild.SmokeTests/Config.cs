@@ -20,6 +20,7 @@ internal static class Config
     public const string TargetRidEnv = "SMOKE_TESTS_TARGET_RID";
     public const string WarnPoisonDiffsEnv = "SMOKE_TESTS_WARN_POISON_DIFFS";
     public const string WarnSdkContentDiffsEnv = "SMOKE_TESTS_WARN_SDK_CONTENT_DIFFS";
+    public const string FSharpPackageVersionEnv = "FSHARP_PACKAGE_VERSION";
 
     public static string DotNetDirectory { get; } =
         Environment.GetEnvironmentVariable(DotNetDirectoryEnv) ?? Path.Combine(Directory.GetCurrentDirectory(), ".dotnet");
@@ -37,4 +38,6 @@ internal static class Config
         bool.TryParse(Environment.GetEnvironmentVariable(WarnPoisonDiffsEnv), out bool excludeOnlineTests) && excludeOnlineTests;
     public static bool WarnOnSdkContentDiffs { get; } =
         bool.TryParse(Environment.GetEnvironmentVariable(WarnSdkContentDiffsEnv), out bool excludeOnlineTests) && excludeOnlineTests;
+    public static string FSharpPackageVersion { get; } = Environment.GetEnvironmentVariable(FSharpPackageVersionEnv) ??
+        throw new InvalidOperationException($"'{FSharpPackageVersionEnv}' must be specified");
 }
