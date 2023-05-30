@@ -119,8 +119,14 @@
          have been run first in order to collect the packages that are required by those tests. The prereqs tests then uses
          those packages to run some validation. -->
     <Exec Command="$(DotnetToolCommand) test $(TestArgs) --filter Category=Prereqs"
-          EnvironmentVariables="$(AllTestEnvVars)" />
+          EnvironmentVariables="$(AllTestEnvVars)"
+          IgnoreExitCode="true">
+      <Output TaskParameter="ExitCode" PropertyName="PrereqsExitCode" />
+    </Exec>
 
+    <Warning Condition=" '$(PrereqsExitCode)' != '0' "
+             Text="Prereqs tests failed."
+             Importance="High" />
   </Target>
 
   <Target Name="CreateSmokeTestPrereqsTarball"

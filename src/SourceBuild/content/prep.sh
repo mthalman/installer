@@ -13,8 +13,7 @@
 ###   --runtime-source-feed         URL of a remote server or a local directory, from which SDKs and
 ###                                 runtimes can be downloaded
 ###   --runtime-source-feed-key     Key for accessing the above server, if necessary
-###   --smoke-test-prereqs-path     Directory where the smoke test prereqs packages should be downloaded to.
-###                                 If not specified, the smoke test prereqs packages will not be downloaded.
+###   --get-smoke-test-prereqs      Download the files required to run the smoke tests
 ###   --smoke-test-prereqs-feed     Additional NuGet package feed URL from which to download the smoke test
 ###                                 prereqs
 ###   --smoke-test-prereqs-feed-key Access token for the smoke test preqreqs NuGet package feed.
@@ -32,12 +31,12 @@ function print_help () {
 buildBootstrap=true
 downloadArtifacts=true
 downloadPrebuilts=true
+downloadSmokeTestPrereqs=false
 installDotnet=true
 runtime_source_feed='' # IBM requested these to support s390x scenarios
 runtime_source_feed_key='' # IBM requested these to support s390x scenarios
 smokeTestPrereqsFeed=''
 smokeTestPrereqsFeedKey=''
-smokeTestPrereqsPath=''
 positional_args=()
 while :; do
   if [ $# -le 0 ]; then
@@ -69,16 +68,15 @@ while :; do
       runtime_source_feed_key=$2
       shift
       ;;
+    --get-smoke-test-prereqs)
+      downloadSmokeTestPrereqs=true
+      ;;
     --smoke-test-prereqs-feed)
       smokeTestPrereqsFeed=$2
       shift
       ;;
     --smoke-test-prereqs-feed-key)
       smokeTestPrereqsFeedKey=$2
-      shift
-      ;;
-    --smoke-test-prereqs-path)
-      smokeTestPrereqsPath=$2
       shift
       ;;
     *)
@@ -91,11 +89,6 @@ done
 
 DOTNET_SDK_PATH="$SCRIPT_ROOT/.dotnet"
 
-if [ -n "$smokeTestPrereqsPath" ]; then
-  # Get the absolute directory path
-  smokeTestPrereqsPath=$(realpath -m "$smokeTestPrereqsPath")
-fi
-
 # Attempting to bootstrap without an SDK will fail. So either the --no-sdk flag must be passed
 # or a pre-existing .dotnet SDK directory must exist.
 if [ "$buildBootstrap" == true ] && [ "$installDotnet" == false ] && [ ! -d $DOTNET_SDK_PATH ]; then
@@ -104,8 +97,8 @@ if [ "$buildBootstrap" == true ] && [ "$installDotnet" == false ] && [ ! -d $DOT
 fi
 
 # Downloading smoke test prereq packages requires a .NET installation
-if [ -n "$smokeTestPrereqsPath" ] && [ "$installDotnet" == false ] && [ ! -d $DOTNET_SDK_PATH ]; then
-  echo "  ERROR: --smoke-test-prereqs-path requires --no-sdk to be unset or a pre-existing .dotnet SDK directory.  Exiting..."
+if [ "$downloadSmokeTestPrereqs" == true ] && [ "$installDotnet" == false ] && [ ! -d $DOTNET_SDK_PATH ]; then
+  echo "  ERROR: --get-smoke-test-prereqs requires --no-sdk to be unset or a pre-existing .dotnet SDK directory.  Exiting..."
   exit 1
 fi
 
@@ -208,7 +201,8 @@ if [ "$downloadPrebuilts" == true ]; then
   DownloadArchive Prebuilts false
 fi
 
-if [ -n "$smokeTestPrereqsPath" ] ; then
+if [ "$downloadSmokeTestPrereqs" == true ] ; then
+  smokeTestPrereqsPath="$SCRIPT_ROOT/prereqs/packages/smoke-test-prereqs"
   smokeTestPath="test/Microsoft.DotNet.SourceBuild.SmokeTests"
   smokeTestAssetsPath="$smokeTestPath/assets"
   smokeTestPrereqsTmp="/tmp/smoke-test-prereqs"

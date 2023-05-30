@@ -55,7 +55,7 @@
       <PackageDownload Include="Microsoft.JSInterop.WebAssembly" Version="$(AspnetCoreVersion)" />
       <PackageDownload Include="Microsoft.NET.ILLink.Tasks" Version="$(RuntimeVersion)" />
       <PackageDownload Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="$(RuntimeVersion)" />
-      <PackageDownload Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
+      <PackageDownload Include="Microsoft.NET.Test.Sdk" Version="17.6.1" />
       <PackageDownload Include="Microsoft.NETCore.App.Crossgen2.linux-$(Arch)" Version="$(RuntimeVersion)" />
       <PackageDownload Include="Microsoft.NETCore.App.Host.linux-$(Arch)" Version="$(RuntimeVersion)" />
       <PackageDownload Include="Microsoft.NETCore.App.Runtime.linux-$(Arch)" Version="$(RuntimeVersion)" />

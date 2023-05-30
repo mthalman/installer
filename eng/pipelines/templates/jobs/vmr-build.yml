@@ -78,8 +78,6 @@ jobs:
       value: N/A
   - name: additionalBuildArgs
     value: ''
-  - name: smokeTestPrereqsPath
-    value: prereqs/packages/smoke-test-prereqs
 
   # Location of the VMR sources
   # We either build the repo directly, or we extract them outside (which is what partners do)
@@ -185,7 +183,7 @@ jobs:
         #   smokeTestFeed="https://pkgs.dev.azure.com/dnceng/internal/_packaging/dotnet8-internal/nuget/v3/index.json"
         # fi
         customPrepArgs="${customPrepArgs}
-          --smoke-test-prereqs-path $(smokeTestPrereqsPath)
+          --get-smoke-test-prereqs-path
           --smoke-test-prereqs-feed ${smokeTestFeed}
           ${smokeTestFeedKeyArg}"
       fi
@@ -252,8 +250,13 @@ jobs:
       else
         customRunArgs+=" --network none"
         # Exclude OmniSharp tests when running offline because they require downloading the OmniSharp tarball
-        dockerEnvArgs+=" -e SMOKE_TESTS_PREREQS_PATH=$containerWorkDir/$(smokeTestPrereqsPath) -e SMOKE_TESTS_EXCLUDE_OMNISHARP=true"
+        dockerEnvArgs+=" -e SMOKE_TESTS_PREREQS_PATH=$containerWorkDir/prereqs/packages/smoke-test-prereqs -e SMOKE_TESTS_EXCLUDE_OMNISHARP=true"
       fi
+
+      # The prep script causes the contents of the smoke tests directory to be mutated because of the restore. But we want
+      # to ensure the smoke tests are run from a clean environment to simulate a UX where the prep script is not used.
+      # This scenario would involve explicit downloading/production of the necessary tarballs instead of the prep script doing it.
+      dotnet clean $(sourcesPath)/test/Microsoft.DotNet.SourceBuild.SmokeTests
 
       docker run --rm $dockerVolumeArgs -w $containerWorkDir $customRunArgs $dockerEnvArgs ${{ parameters.container }} ./build.sh $poisonArg --run-smoke-test $(additionalBuildArgs) $customBuildArgs -- -p:SmokeTestConsoleVerbosity=detailed
     displayName: Run Tests
